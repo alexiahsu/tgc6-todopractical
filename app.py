@@ -5,49 +5,49 @@ from bson import ObjectId
 import os
 import datetime
 
-# load variables in the .env file in our operating system environment
+# load in the variables in the .env file into our operating system environment
 load_dotenv()
 
 app = Flask(__name__)
 
-# Connect to mongodb
+# connect to mongo
 MONGO_URI = os.environ.get('MONGO_URI')
 client = pymongo.MongoClient(MONGO_URI)
 
-# Define db name
+# define my db_name
 DB_NAME = "todolist"
 
-# Read in the session_key variable from the operating system environment
+# read in the SESSION_KEY variable from the operating system environment
 SESSION_KEY = os.environ.get('SESSION_KEY')
 
-# Set the session_key
+# set the session key
 app.secret_key = SESSION_KEY
 
-# Home route
+
+# The Home Route
 # Display all the tasks
-
-
 @app.route('/')
 def home():
     tasks = client[DB_NAME].todos.find()
     return render_template('home.template.html', tasks=tasks)
 
-# FOR "C" in CRUD
-# One route to show the form and ask the user to type in
-# One route to process the form (extract the data) & send to database
 
-# Show form
+# For the "C" part of the CRUD
+# one route to show the form and ask the user to type in
+# one route to actually process the form (extract the data) and
+# send it to the database
 
-
+# this is the route that collects the user data with the form
 @app.route('/tasks/create')
 def show_create_form():
     return render_template('create_task.template.html')
 
-# Process form (extract data) and write into mongo db
 
-
-@app.route('/tasks/create', methods=["POST"])
+# this is the route that process the form (extract data from it)
+# and write  it to the Mongo database
+@app.route('/tasks/create', methods=['POST'])
 def create_task():
+    # extract information from the form
     task_name = request.form.get('task-name')
     due_date = request.form.get('due-date')
     comments = request.form.get('comments')
@@ -61,15 +61,25 @@ def create_task():
     flash(f"New task '{task_name}' has been created")
     return redirect(url_for('home'))
 
+# RESTFUL API Review
+# POST - create new data
+# PUT - modify existing data by replacing the old entirely with the new
+# PATCH - modify existing data by changing one aspect of the old data
+# DELETE - delete existing date
+# GET - fetch data
 
-@app.route('/tasks/check', methods=["PATCH"])
+
+@app.route('/tasks/check', methods=['PATCH'])
 def check_task():
+
     task_id = request.json.get('task_id')
+
     task = client[DB_NAME].todos.find_one({
         "_id": ObjectId(task_id)
     })
+    print(task)
 
-    # there is a chance that task has no "done"
+    # there is a chance task has no "done"
     # so if there is no key named "done", we just set "done" to False
     if task.get('done') is None:
         task['done'] = False
@@ -81,12 +91,11 @@ def check_task():
             'done': not task['done']
         }
     })
-    # if we return a dictionary in Flask, flask will auto-convert to JSON
+
+    # if we return a dictionary in Flask, Flask will auto-convert to JSON
     return {
         "status": "OK"
     }
-# By default, date is stored as string
-# use datetime.datetime.strptime()
 
 
 # "magic code" -- boilerplate

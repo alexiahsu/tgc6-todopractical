@@ -1,4 +1,4 @@
-{% extends 'layout.template.html' %}
+{%extends 'layout.template.html' %}
 
 {%block title%}Todo List{%endblock%}
 
@@ -8,30 +8,50 @@
 <a href="{{url_for('create_task')}}" class="btn btn-primary">New Task</a>
 
 <ul class="list-group mt-3">
-{%for t in tasks%}
+{%for t in tasks %}
     <li class="list-group-item">
-    <input type="checkbox" class="task" data-task-id="{t._id}" />
-    {{t.task_name}}
+        {%if t.done %}
+        <input type="checkbox" class="task-checkbox" data-task-id="{{t._id}}" checked/>
+        {%else%}
+        <input type="checkbox" class="task-checkbox" data-task-id="{{t._id}}"/>
+        {%endif%}
+        {{t.task_name}} 
     </li>
 {%endfor%}
+
 </ul>
 {%endblock%}
 
 {%block js%}
 <script>
 $(function(){
-    $('.task-checkbox').change(function(){
-        let task_id = $(this).data('task-id')
-        $.ajax({
-            'url': "{{url_for('check_task')}}",
-            'datatype': 'json',
-            'contentType': 'application/json',
-            'data': JSON.stringify{
-                'task_id': task_id
-            },
-            'type': 'PATCH'
+    $(".task-checkbox").change(function(){
+        let task_id = $(this).data('task-id');
+        // $.ajax({
+        //     'url': "{{url_for('check_task')}}",
+        //     'dataType': 'json',
+        //     'contentType':'application/json',
+        //     'data': JSON.stringify({
+        //         'task_id': task_id
+        //     }),
+        //     'type':'PATCH'
+        // })
+
+        // alternative syntax using axios
+        let url ="{{url_for('check_task')}}";
+        let self = this;
+        axios.patch(url, {
+            'task_id':task_id
+        }).then(function(){
+            if (self.checked) {
+                toastr.success("Item has been mark as done!");
+            } else {
+                toastr.success("item has been mark as not done!");
+            }
+            
         })
     })
 })
+
 </script>
 {%endblock%}

@@ -35,3 +35,11 @@ Generated from https://randomkeygen.com/
 2. Ensure sessions are enabled -> we have to make sure 
 `app.secret_key` has been set
 3. In the `layout.template.html` add in the code to display the flash messages
+
+
+# Restful API Review
+* Post - create new data
+* Put - modify existing data by replacing the old entirely with new
+* Patch - modify existing data by changing one aspect of the old data
+* Delete - delete existing data
+* Get - fetch data
